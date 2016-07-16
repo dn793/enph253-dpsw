@@ -1,16 +1,10 @@
 #include "graph.h"
 
-/*
-* Get weight of node with respect to current node.
-*/
-const uint8_t getWeight(uint8_t currentNode, uint8_t adjacentNode) {
+const unsigned char getWeight(unsigned char currentNode, unsigned char adjacentNode) {
 	return weightMatrix[currentNode - 1][adjacentNode - 1];
 }
 
-/*
-* Returns array of adjacent nodes.
-*/
-const uint8_t * getAdjacent(uint8_t node) {
+const unsigned char * getAdjacent(unsigned char node) {
 	switch (node) {
 	case 1:
 		return adj_1;
@@ -53,4 +47,27 @@ const uint8_t * getAdjacent(uint8_t node) {
 	case 20:
 		return adj_20;
 	}
+}
+
+Queue * createQueue() {
+	Queue *q;
+	q = (Queue *)malloc(sizeof(Queue));
+	q->queue = (unsigned char *)malloc(sizeof(unsigned char) * 20);
+	q->size = 0;
+	q->front = 0;
+	q->rear = -1;
+	return q;
+}
+
+unsigned char pop(Queue *q) {
+	unsigned char node = q->queue[q->front++];
+	--q->size;
+	return node;
+}
+
+void enqueue(Queue *q, unsigned char node) {
+	++q->size;
+	q->rear = q->rear + 1;
+	q->queue[q->rear] = node;
+	return;
 }
