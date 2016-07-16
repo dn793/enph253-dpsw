@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include "graph.h"
 
 const unsigned char getWeight(unsigned char currentNode, unsigned char adjacentNode) {
@@ -70,4 +71,40 @@ void enqueue(Queue *q, unsigned char node) {
 	q->rear = q->rear + 1;
 	q->queue[q->rear] = node;
 	return;
+}
+
+unsigned char * shortestPath(unsigned char initialNode, unsigned char finalNode) {
+	unsigned char currentNode;
+	bool visited[20] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
+	unsigned char prev[20] = { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 };
+	Queue *q = createQueue();
+
+	enqueue(q, initialNode);
+
+	while (q->size != 0) {
+		currentNode = pop(q);
+
+		if (visited[currentNode - 1] == false) {
+			visited[currentNode - 1] = true;
+
+			const unsigned char *adjacents = getAdjacent(currentNode);
+			for (int i = 0; i < adjSizes[currentNode - 1]; ++i) {
+				enqueue(q, *(adjacents + i));
+				prev[*(adjacents + i) - 1] = currentNode;
+			}
+		}
+	}
+
+	currentNode = finalNode;
+	while (currentNode != initialNode) {
+		enqueue(q, currentNode);
+		currentNode = prev[currentNode - 1];
+	}
+
+	unsigned char pathSize = q->size;
+	unsigned char path[pathSize + 1];
+	path[0] = pathSize;
+	for (int i = 1; i <= pathSize; ++i) { path[i] = q->queue[pathSize - 1 - i]; }
+
+	return path;
 }

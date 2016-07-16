@@ -39,6 +39,11 @@ unsigned char pop(Queue *q);
  */
 void enqueue(Queue *q, unsigned char node);
 
+/*
+ * Finds the shortest path from one node to another. 
+ * Returns a pointer to an array index, where the first index is the path size.
+ */
+unsigned char * shortestPath(unsigned char initialNode, unsigned char finalNode);
 
 /*
  * "Matrix" of weighted nodes.
@@ -114,7 +119,7 @@ const unsigned char adj_17[1] PROGMEM = { 15 };
 const unsigned char adj_18[2] PROGMEM = { 14, 19 };
 const unsigned char adj_19[3] PROGMEM = { 13, 18, 20 };
 const unsigned char adj_20[1] PROGMEM = { 19 };
-const unsigned char endIndices[20] PROGMEM = { 0, 2, 1, 2, 3, 2, 0, 0, 2, 2, 0, 1, 3, 2, 2, 0, 0, 1, 2, 0 };
+const unsigned char adjSizes[20] PROGMEM = { 1, 3, 2, 3, 4, 3, 1, 1, 3, 3, 1, 2, 4, 3, 3, 1, 1, 2, 3, 1 };
 
 /*
  * Lists of shortest paths towards drop-off location.
@@ -123,7 +128,6 @@ const unsigned char endIndices[20] PROGMEM = { 0, 2, 1, 2, 3, 2, 0, 0, 2, 2, 0, 
  * 
  * Stored in flash memory.
  */
-/*
 const unsigned char from_1_a[3] PROGMEM = {2, 3, 4};
 const unsigned char from_1_b[3] PROGMEM = {2, 5, 4};
 const unsigned char from_2_a[2] PROGMEM = {3, 4};
@@ -150,6 +154,5 @@ const unsigned char from_19_a[2] PROGMEM = {18, 14};
 const unsigned char from_19_b[2] PROGMEM = {13, 14};
 const unsigned char from_20_a[3] PROGMEM = {19, 18, 14};
 const unsigned char from_20_b[3] PROGMEM = {19, 13, 14};
-*/
 
 #endif
