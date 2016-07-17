@@ -50,6 +50,6 @@ extern "C" void __cxa_pure_virtual() {;}
 #undef PSTR
 #define PSTR(string_literal) ((const PROGMEM char *)(string_literal))")
 #include <ENPH253.ino>
-#include <Graph.c>
-#include <graph.h>
+#include <Navigation.c>
+#include <Navigation.h>
 #endif
