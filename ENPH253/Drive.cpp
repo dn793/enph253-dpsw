@@ -3,9 +3,7 @@
 // The Drive class specifies and implements the driving movements of the robot
 // 
 
-#include "Arduino.h"
 #include "Drive.h"
-#include "Pins.h"
 
 Drive::Drive(){
 	kp = 30;
@@ -199,15 +197,9 @@ void Drive::setKD(){
 /**
 @return the proportional constant
 */
-int Drive::getKP(){
-	int copy = kp;
-	return copy;
-}
+unsigned char Drive::getKP() { return kp; }
 
 /**
 @return the derivative constant
 */
-int Drive::getKD(){
-	int copy = kd;
-	return copy;
-}
+unsigned char Drive::getKD() { return kd; }

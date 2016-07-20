@@ -27,7 +27,7 @@ unsigned char pop(List *l);
 /*
  * Adds a node to the end of a List.
  */
-void add(List *l, unsigned char node);
+void enqueue(List *l, unsigned char node);
 
 /*
 * Adds a node to the start of a List.
@@ -37,7 +37,7 @@ void push(List *q, unsigned char node);
 /*
 * Get weight of node with respect to current node.
 */
-const unsigned char getWeight(unsigned char currentNode, unsigned char adjacentNode);
+unsigned char getWeight(unsigned char currentNode, unsigned char adjacentNode);
 
 /*
  * Returns array of adjacent nodes.

@@ -1,6 +1,7 @@
 #include "Navigation.h"
 
-List * createList(unsigned char capacity) {
+List * createList(unsigned char capacity)
+{
 	List *l;
 	l = (List *)malloc(sizeof(List));
 	l->list = (unsigned char *)malloc(sizeof(unsigned char) * capacity);
@@ -10,20 +11,23 @@ List * createList(unsigned char capacity) {
 	return l;
 }
 
-unsigned char pop(List *l) {
+unsigned char pop(List *l)
+{
 	--l->size;
 	unsigned char node = l->list[l->front++];
 	return node;
 }
 
-void add(List *l, unsigned char node) {
+void enqueue(List *l, unsigned char node)
+{
 	++l->size;
 	l->rear = l->rear + 1;
 	l->list[l->rear] = node;
 	return;
 }
 
-void push(List *l, unsigned char node) {
+void push(List *l, unsigned char node)
+{
 	++l->size;
 	l->rear = l->rear + 1;
 	for (unsigned char i = 0; i < l->size + 1; ++i) { l->list[l->rear - i] = l->list[l->rear - i - 1]; }
@@ -31,11 +35,11 @@ void push(List *l, unsigned char node) {
 	return;
 }
 
-const unsigned char getWeight(unsigned char currentNode, unsigned char adjacentNode) {
-	return weightMatrix[currentNode - 1][adjacentNode - 1];
-}
+unsigned char getWeight(unsigned char currentNode, unsigned char adjacentNode) 
+{	return (unsigned char)weightMatrix[currentNode - 1][adjacentNode - 1]; }
 
-unsigned char * getAdjacent(unsigned char node) {
+unsigned char * getAdjacent(unsigned char node)
+{
 	switch (node) {
 		case 1:
 			return (unsigned char *)adj_1;
@@ -80,7 +84,8 @@ unsigned char * getAdjacent(unsigned char node) {
 	}
 }
 
-unsigned char * getDropOffPath(unsigned char node) {
+unsigned char * getDropOffPath(unsigned char node)
+{
 	switch (node) {
 		case 1:
 			return (unsigned char *)from_1_a;

@@ -3,11 +3,14 @@
 #ifndef _DRIVE_h
 #define _DRIVE_h
 
-#if defined(ARDUINO) && ARDUINO >= 100
-	#include "arduino.h"
-#else
-	#include "WProgram.h"
-#endif
+//#if defined(ARDUINO) && ARDUINO >= 100
+//	#include "arduino.h"
+//#else
+//	#include "WProgram.h"
+//#endif
+
+#include <phys253.h>
+#include "Pins.h"
 
 #define MAX_SPEED	255
 
@@ -27,15 +30,15 @@ class Drive
 		void stopNow();
 		void setKP();
 		void setKD();
-		int getKP();
-		int getKD();
+		unsigned char getKP();
+		unsigned char getKD();
 	private:
 		//QRD sensors
-		int rightLine;
-		int leftLine;
-		int rightNode;
-		int leftNode;
-		int edge;
+		unsigned char rightLine;
+		unsigned char leftLine;
+		unsigned char rightNode;
+		unsigned char leftNode;
+		unsigned char edge;
 
 		//PID variables
 		double kp;
@@ -51,5 +54,5 @@ class Drive
 		double q;
 		double m;
 };
-#endif
 
+#endif
