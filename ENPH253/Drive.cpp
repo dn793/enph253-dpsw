@@ -1,205 +1,150 @@
-// 
-// Implements Drive.h
-// The Drive class specifies and implements the driving movements of the robot
-// 
-
 #include "Drive.h"
 
-Drive::Drive(){
-	kp = 30;
-	kd = 10;
-	error = 0;
-	prevError = 0;
-	lastError = 0;
-	q = 1;
-	m = 0;
+unsigned char rightLine;
+unsigned char leftLine;
+unsigned char rightNode;
+unsigned char leftNode;
+
+extern "C" Drive * createDrive()
+{
+	Drive *drive;
+	drive = (Drive *)malloc(sizeof(Drive));
+	
+	drive->kp = 30;
+	drive->kd = 10;
+	drive->error = 0;
+	drive->prevError = 0;
+	drive->lastError = 0;
+	drive->q = 1;
+	drive->m = 0;
+
+	return drive;
 }
 
-/**
-Drives the robot forward, along tape
-*/
-void Drive:: lineFollow(){
-
+void lineFollow(Drive *drive)
+{
 	rightNode = digitalRead(RIGHT_NODE);
 	rightLine = digitalRead(FRONT_RIGHT_LINE);
 	leftLine = digitalRead(FRONT_LEFT_LINE);
 	leftNode = digitalRead(LEFT_NODE);
-	edge = digitalRead(EDGE);
 
-	//Read sensors and determine correction
-	if (leftLine && rightLine) error = 0;
-	if (leftLine && !(rightLine)) error = -1;
-	if (!(leftLine) && rightLine) error = +1;
-	if (!(leftLine) && !(rightLine))
+	if (leftLine && rightLine) { drive->error = 0; }
+	else if (leftLine && !(rightLine)) { drive->error = -1; }
+	else if (!(leftLine) && rightLine) { drive->error = +1; }
+	else if (!(leftLine) && !(rightLine))
 	{
-		if (lastError > 0) error = 5;
-		if (lastError <= 0) error = -5;
+		if (drive->lastError > 0) { drive->error = 5; }
+		else { drive->error = -5; }
 	}
-	if (!(error == lastError))
+	if (!(drive->error == drive->lastError))
 	{
-		prevError = lastError;
-		q = m;
-		m = 1;
+		drive->prevError = drive->lastError;
+		drive->q = drive->m;
+		drive->m = 1;
 	}
 
-	prop = kp * error;
-	der = (int)((float)kd *(float)(error - prevError) / (float)(q + m));
-	corr = prop + der;
+	drive->prop = drive->kp * drive->error;
+	drive->der = drive->kd * (drive->error - drive->prevError) / (drive->q + drive->m);
+	drive->corr = drive->prop + drive->der;
 
-	m = m + 1;
+	++drive->m;
 
-	velocity = 200;
+	if (200 - drive->corr < -255) { drive->velocity = -255; }
+	else if (200 + drive->corr > 255) { drive->velocity = 255; }
 
-	if (velocity - corr < -255){
-		velocity = -255;
+	if (digitalRead(EDGE)) { stopNow(); }
+	else
+	{
+		motor.speed(RIGHT_WHEEL, drive->velocity - drive->corr);
+		motor.speed(LEFT_WHEEL, drive->velocity + drive->corr);
 	}
-	if (velocity + corr> 255){
-		velocity = 255;
-	}
-
-	if (edge){
-		stopNow();
-	}
-	else{
-		motor.speed(RIGHT_WHEEL, velocity - corr);
-		motor.speed(LEFT_WHEEL, velocity + corr);
-	}
-
-	lastError = error;
+	
+	drive->lastError = drive->error;
 }
 
-/**
- Drive the robot straight forward; does NOT line follow
-  @param speed: speed of robot is between 0 and 255
- */
-void Drive::driveForward(int speed){
+void driveForward(unsigned char speed)
+{
 	motor.speed(RIGHT_WHEEL, speed);
 	motor.speed(LEFT_WHEEL, speed);
 }
 
-/**
-Drive the robot straight backwards; does NOT line follow
- @param speed: speed of robot is between 0 and -255
-*/
-void Drive::reverse(int speed){
-	motor.speed(RIGHT_WHEEL, speed);
-	motor.speed(LEFT_WHEEL, speed);
+void reverse(unsigned char speed)
+{
+	motor.speed(RIGHT_WHEEL, -1 * speed);
+	motor.speed(LEFT_WHEEL, -1 * speed);
 }
 
-/**
-Turns the robot to the left, robot turns about left wheel
-*/
-void Drive::turnLeft(){
+void turnLeft(Drive *drive)
+{
 	motor.speed(RIGHT_WHEEL, MAX_SPEED);
 	motor.speed(LEFT_WHEEL, 0);
-	delay(200); //delay ensures that robot has turned enough so that the sensor will return data from the porper line
-	if (digitalRead(FRONT_RIGHT_LINE)){
-		lastError = 1;
-	}
-	else{
-		turnLeft();
-	}
+	delay(DELAY_TURN);
+	if (digitalRead(FRONT_RIGHT_LINE)) { drive->lastError = 1; }
+	else { turnLeft(drive); }
 }
 
-/**
-Turns the robot to the right, robot turns about right wheel
-*/
-void Drive::turnRight(){
+void turnRight(Drive *drive)
+{
 	motor.speed(RIGHT_WHEEL, 0);
 	motor.speed(LEFT_WHEEL, MAX_SPEED);
-	delay(200); //delay ensures that robot has turned enough so that the sensor will return data from the porper line
-	if (digitalRead(FRONT_LEFT_LINE)){
-		lastError = -1;
-	}
-	else{
-		turnRight();
-	}
+	delay(DELAY_TURN);
+	if (digitalRead(FRONT_LEFT_LINE)) { drive->lastError = -1; }
+	else { turnRight(drive); }
 }
 
-/*
-Makes a hard right, robot turns about centre axis
-*/
-void Drive::hardLeft(){
+void hardLeft(Drive *drive)
+{
 	motor.speed(RIGHT_WHEEL, MAX_SPEED);
 	motor.speed(LEFT_WHEEL, -MAX_SPEED);
-	delay(200); //delay ensures that robot has turned enough so that the sensor will return data from the porper line
-	if (digitalRead(FRONT_RIGHT_LINE)){
-		lastError = 1;
-	}
-	else{
-		hardLeft();
-	}
+	delay(DELAY_TURN);
+	if (digitalRead(FRONT_RIGHT_LINE)) { drive->lastError = 1; }
+	else { hardLeft(drive); }
 }
 
-/*
-Makes a hard right, robot turns about centre axis
-*/
-void Drive::hardRight(){
+void hardRight(Drive *drive)
+{
 	motor.speed(RIGHT_WHEEL, -MAX_SPEED);
 	motor.speed(LEFT_WHEEL, MAX_SPEED);
-	delay(200); //delay ensures that robot has turned enough so that the sensor will return data from the porper line
-	if (digitalRead(FRONT_LEFT_LINE)){
-		lastError = -1;
-	}
-	else{
-		hardRight();
-	}
+	delay(DELAY_TURN);
+	if (digitalRead(FRONT_LEFT_LINE)) { drive->lastError = -1; }
+	else { hardRight(drive); }
 }
 
-/*
-Makes the robot do a 180 degree turn (turns to the left, about its centre axis)
-*/
-void Drive::turnAround(){
+void turnAroundLeft(Drive * drive) {
 	motor.speed(RIGHT_WHEEL, MAX_SPEED);
 	motor.speed(LEFT_WHEEL, -MAX_SPEED);
-	delay(400); //delay ensures that robot has turned enough so that the sensor will return data from the porper line
-	if (digitalRead(FRONT_RIGHT_LINE)){
-		lastError = 1;
-	}
-	else{
-		hardLeft();
-	}
+	delay(DELAY_180);
+	if (digitalRead(FRONT_RIGHT_LINE)) { drive->lastError = 1; }
+	else { hardLeft(drive); }
 }
 
-/*
-Stops the robot
-*/
-void Drive::stop(){
+void turnAroundRight(Drive * drive) {
+	motor.speed(RIGHT_WHEEL, -MAX_SPEED);
+	motor.speed(LEFT_WHEEL, MAX_SPEED);
+	delay(DELAY_180);
+	if (digitalRead(FRONT_RIGHT_LINE)) { drive->lastError = 1; }
+	else { hardRight(drive); }
+}
+
+void stop()
+{
 	motor.stop(RIGHT_WHEEL);
 	motor.stop(LEFT_WHEEL);
 }
 
-/*
-Stops the robot immediately
-*/
-void Drive:: stopNow(){
+void stopNow()
+{
 	motor.speed(LEFT_WHEEL, -MAX_SPEED);
 	motor.speed(RIGHT_WHEEL, -MAX_SPEED);
-	delay(50);
+	delay(DELAY_STOP);
 	motor.stop(LEFT_WHEEL);
 	motor.stop(RIGHT_WHEEL);
 }
 
-/**
-Set the proportional constant
-*/
-void Drive::setKP(){
-	kp = knob(KNOB)/3;
-}
+extern "C" void setKP(Drive *drive) { drive->kp = knob(KNOB) / 3; }
 
-/**
-Set the derivative constant
-*/
-void Drive::setKD(){
-	kd = knob(KNOB)/3;
-}
+extern "C" void setKD(Drive *drive) { drive->kd = knob(KNOB) / 3; }
 
-/**
-@return the proportional constant
-*/
-unsigned char Drive::getKP() { return kp; }
+extern "C" unsigned char getKP(Drive *drive) { return drive->kp; }
 
-/**
-@return the derivative constant
-*/
-unsigned char Drive::getKD() { return kd; }
+extern "C" unsigned char getKD(Drive *drive) { return drive->kd; }

@@ -1,60 +1,14 @@
-#ifndef nav_h
-#define nav_h
+#ifndef navigation_h
+#define navigation_h
 
 #include <avr/pgmspace.h>
 
 /*
- * Queue structure for nodes in path optimization.
- */
-typedef struct List {
-	unsigned char *list;
-	unsigned char size;
-	unsigned char capacity;
-	unsigned char front;
-	unsigned char rear;
-} List;
-
-/*
- * Creates a List with specified capacity.
- */
-List * createList(unsigned char capacity);
-
-/*
- * Removes and returns first node from a List.
- */
-unsigned char pop(List *l);
-
-/*
- * Adds a node to the end of a List.
- */
-void enqueue(List *l, unsigned char node);
-
-/*
-* Adds a node to the start of a List.
+* "Matrix" of weighted nodes.
+* Nodes are numbered as shown in "node layout.png".
+*
+* Stored in flash memory.
 */
-void push(List *q, unsigned char node);
-
-/*
-* Get weight of node with respect to current node.
-*/
-unsigned char getWeight(unsigned char currentNode, unsigned char adjacentNode);
-
-/*
- * Returns array of adjacent nodes.
- */
-unsigned char * getAdjacent(unsigned char node);
-
-/*
- * Returns path array to drop off location from given node.
- */
-unsigned char * getDropOffPath(unsigned char node);
-
-/*
- * "Matrix" of weighted nodes.
- * Nodes are numbered as shown in "node layout.png".
- * 
- * Stored in flash memory.
- */
 const unsigned char weightMatrix[20][20] PROGMEM = {
 	// 1
 	{ 0, /* 2 */ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -99,10 +53,10 @@ const unsigned char weightMatrix[20][20] PROGMEM = {
 };
 
 /*
- * Lists of adjacent nodes for each node.
- *
- * Stored in flash memory.
- */
+* Lists of adjacent nodes for each node.
+*
+* Stored in flash memory.
+*/
 const unsigned char adj_1[1] PROGMEM = { 2 };
 const unsigned char adj_2[3] PROGMEM = { 1, 3, 5 };
 const unsigned char adj_3[2] PROGMEM = { 2, 4 };
@@ -126,39 +80,86 @@ const unsigned char adj_20[1] PROGMEM = { 19 };
 const unsigned char adjSizes[20] PROGMEM = { 1, 3, 2, 3, 4, 3, 1, 1, 3, 3, 1, 2, 4, 3, 3, 1, 1, 2, 3, 1 };
 
 /*
- * Lists of shortest paths towards drop-off location.
- * Some paths are identical for different starting positions.
- * Drives towards the closest node betweem 4 and 14.
- * 
- * Stored in flash memory.
- */
-const unsigned char from_1_a[3] PROGMEM = {2, 3, 4};
-const unsigned char from_1_b[3] PROGMEM = {2, 5, 4};
-const unsigned char from_2_a[2] PROGMEM = {3, 4};
-const unsigned char from_2_b[2] PROGMEM = {5, 4};
-const unsigned char from_3_5_a[1] PROGMEM = {4};
-const unsigned char from_3_b[3] PROGMEM = {2, 5, 4};
-const unsigned char from_5_b[3] PROGMEM = {2, 3, 4};
-const unsigned char from_6_9_a[2] PROGMEM = {5, 4};
-const unsigned char from_6_9_b[4] PROGMEM = {5, 2, 3, 4};
-const unsigned char from_7_8_a[3] PROGMEM = {6, 5, 4};
-const unsigned char from_7_8_b[5] PROGMEM = {6, 5, 2, 3, 4};
-const unsigned char from_10_a[3] PROGMEM = {9, 5, 4};
-const unsigned char from_10_b[3] PROGMEM = {12, 13, 14};
-const unsigned char from_11_a[4] PROGMEM = {10, 9, 5, 4};
-const unsigned char from_11_b[4] PROGMEM = {10, 12, 13, 14};
-const unsigned char from_12_15_a[2] PROGMEM = {13, 14};
-const unsigned char from_12_15_b[4] PROGMEM = {13, 19, 18, 14};
-const unsigned char from_13_18_a[1] PROGMEM = {14};
-const unsigned char from_13_b[3] PROGMEM = {19, 18, 14};
-const unsigned char from_18_b[3] PROGMEM = {19, 13, 14};
-const unsigned char from_16_17_a[3] PROGMEM = {15, 13, 14};
-const unsigned char from_16_17_b[5] PROGMEM = {15, 13, 19, 18, 14};
-const unsigned char from_19_a[2] PROGMEM = {18, 14};
-const unsigned char from_19_b[2] PROGMEM = {13, 14};
-const unsigned char from_20_a[3] PROGMEM = {19, 18, 14};
-const unsigned char from_20_b[3] PROGMEM = {19, 13, 14};
+* Lists of shortest paths towards drop-off location.
+* Some paths are identical for different starting positions.
+* Drives towards the closest node between 4 and 14.
+*
+* Stored in flash memory.
+*/
+const unsigned char from_1_a[3] PROGMEM = { 2, 3, 4 };
+const unsigned char from_1_b[3] PROGMEM = { 2, 5, 4 };
+const unsigned char from_2_a[2] PROGMEM = { 3, 4 };
+const unsigned char from_2_b[2] PROGMEM = { 5, 4 };
+const unsigned char from_3_5_a[1] PROGMEM = { 4 };
+const unsigned char from_3_b[3] PROGMEM = { 2, 5, 4 };
+const unsigned char from_5_b[3] PROGMEM = { 2, 3, 4 };
+const unsigned char from_6_9_a[2] PROGMEM = { 5, 4 };
+const unsigned char from_6_9_b[4] PROGMEM = { 5, 2, 3, 4 };
+const unsigned char from_7_8_a[3] PROGMEM = { 6, 5, 4 };
+const unsigned char from_7_8_b[5] PROGMEM = { 6, 5, 2, 3, 4 };
+const unsigned char from_10_a[3] PROGMEM = { 9, 5, 4 };
+const unsigned char from_10_b[3] PROGMEM = { 12, 13, 14 };
+const unsigned char from_11_a[4] PROGMEM = { 10, 9, 5, 4 };
+const unsigned char from_11_b[4] PROGMEM = { 10, 12, 13, 14 };
+const unsigned char from_12_15_a[2] PROGMEM = { 13, 14 };
+const unsigned char from_12_15_b[4] PROGMEM = { 13, 19, 18, 14 };
+const unsigned char from_13_18_a[1] PROGMEM = { 14 };
+const unsigned char from_13_b[3] PROGMEM = { 19, 18, 14 };
+const unsigned char from_18_b[3] PROGMEM = { 19, 13, 14 };
+const unsigned char from_16_17_a[3] PROGMEM = { 15, 13, 14 };
+const unsigned char from_16_17_b[5] PROGMEM = { 15, 13, 19, 18, 14 };
+const unsigned char from_19_a[2] PROGMEM = { 18, 14 };
+const unsigned char from_19_b[2] PROGMEM = { 13, 14 };
+const unsigned char from_20_a[3] PROGMEM = { 19, 18, 14 };
+const unsigned char from_20_b[3] PROGMEM = { 19, 13, 14 };
 const unsigned char dropOffPathSizes[20] PROGMEM = { 3, 2, 1, 0, 1, 2, 3, 3, 2, 3, 4, 2, 1, 0, 2, 3, 3, 1, 2, 3 };
+
+/*
+ * Queue structure for nodes in path optimization.
+ */
+typedef struct List 
+{
+	unsigned char *list;
+	unsigned char size;
+	unsigned char capacity;
+	unsigned char front;
+	unsigned char rear;
+} List;
+
+/*
+ * Creates a List with specified capacity.
+ */
+List * createList(unsigned char capacity);
+
+/*
+ * Removes and returns first node from a List.
+ */
+unsigned char pop(List *l);
+
+/*
+ * Adds a node to the end of a List.
+ */
+void enqueue(List *l, unsigned char node);
+
+/*
+* Adds a node to the start of a List.
+*/
+void push(List *q, unsigned char node);
+
+/*
+* Get weight of node with respect to current node.
+*/
+unsigned char getWeight(unsigned char currentNode, unsigned char adjacentNode);
+
+/*
+ * Returns array of adjacent nodes.
+ */
+unsigned char * getAdjacent(unsigned char node);
+
+/*
+ * Returns path array to drop off location from given node.
+ */
+unsigned char * getDropOffPath(unsigned char node);
 
 #endif
 

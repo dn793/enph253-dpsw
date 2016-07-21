@@ -1,15 +1,13 @@
-// Pins.h
-
 #ifndef _PINS_h
 #define _PINS_h
 
-#if defined(ARDUINO) && ARDUINO >= 100
-	#include "arduino.h"
-#else
-	#include "WProgram.h"
-#endif
+//#if defined(ARDUINO) && ARDUINO >= 100
+//	#include "arduino.h"
+//#else
+//	#include "WProgram.h"
+//#endif
 
-//Digital input pins
+// Digital input pins
 #define RIGHT_NODE			0
 #define FRONT_RIGHT_LINE	1
 #define FRONT_LEFT_LINE		2
@@ -28,7 +26,7 @@
 #define ARM_EXTENSION		15
 
 
-//Analog input pins
+// Analog input pins
 #define FRONT_LEFT_IR		0
 #define BACK_LEFT_IR		1
 #define FRONT_RIGHT_LINE	2
@@ -38,16 +36,14 @@
 #define CENTRE_SENSOR_ARRAY	6
 #define KNOB				7
 
-//Motor outputs
+// Motor outputs
 #define RIGHT_WHEEL		0
 #define LEFT_WHEEL		1
 #define ROTATING_BASE	2
 #define ARM_EXTENSION	3
 
-//Servo motor outputs
+// Servo motor outputs
 #define ARM_TILT	0
 #define CLAW		1
 
-
 #endif
-
