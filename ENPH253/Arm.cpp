@@ -160,9 +160,9 @@ bool armPID(int state)
 
 void moveArm(int direction)
 {
-	motor.speed(ARM_EXTENSION, ARM_START_EXT_SPEED * direction);
-	while (digitalRead(ARM_SWITCH) == false) {	}
-	stopArmNow(ARM_EXTENSION, ARM_START_EXT_SPEED * direction * -1);
+	motor.speed(ARM_EXTENSION_MOTOR, ARM_START_EXT_SPEED * direction);
+	while (digitalRead(ARM_EXTENSION) == false) {	}
+	stopArmNow(ARM_EXTENSION_MOTOR, ARM_START_EXT_SPEED * direction * -1);
 }
 
 void moveArmHome(int state, bool havePassenger)

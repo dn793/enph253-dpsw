@@ -37,10 +37,10 @@
 #define KNOB				7
 
 // Motor outputs
-#define RIGHT_WHEEL		0
-#define LEFT_WHEEL		1
-#define ROTATING_BASE	2
-#define ARM_EXTENSION	3
+#define RIGHT_WHEEL			0
+#define LEFT_WHEEL			1
+#define ROTATING_BASE		2
+#define ARM_EXTENSION_MOTOR	3
 
 // Servo motor outputs
 #define ARM_TILT	0

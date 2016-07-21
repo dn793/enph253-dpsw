@@ -11,9 +11,6 @@ unsigned char getCollisionState()
 	else { return HIT_NONE; }
 }
 
-// TODO: Direction implementation?
-int direction;
-
 void collided(Drive *drive, unsigned char collisionState)
 {
 	switch (collisionState)
@@ -45,14 +42,14 @@ void collided(Drive *drive, unsigned char collisionState)
 					turnFailed = count;
 					break;
 				}
-				direction = -1 * direction;
+				//direction = -1 * direction;
 			}
 
 			// If unable to turn one way, turn the other way
 			if (turnFailed != 0)
 			{
 				for (count = 0; count < 50 + turnFailed; ++count) { turnAroundRight(drive); }
-				direction = -1 * direction;
+				//direction = -1 * direction;
 			}
 			break;
 		}

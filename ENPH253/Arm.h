@@ -2,6 +2,7 @@
 #define arm_h
 
 #include <phys253.h>
+#include "Pins.h"
 
 #define CENTER_SENSOR_ARRAY				6
 #define RIGHT_SENSOR_ARRAY				11
@@ -12,14 +13,8 @@
 #define BOTTOMLEFT_PASS_DETECT			2
 #define TOPRIGHT_PASS_DETECT			3
 #define BOTTOMRIGHT_PASS_DETECT			4
-#define CLAW_SWITCH						9
-#define ROTATING_BASE					2
-#define ARM_EXTENSION					3
-#define BASE_ROTATION_QRD				15
 #define ARM_START_ROT_SPEED				200
 #define ARM_START_EXT_SPEED				200
-#define TILT_SWITCH						7
-#define ARM_SWITCH						15
 #define BACK							-1
 #define FWD								1
 #define FULL_EXTENSION_TIME             3000

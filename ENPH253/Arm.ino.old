@@ -1,0 +1,299 @@
+#include <phys253.h>          
+#include <LiquidCrystal.h>     
+
+/*
+*This program controls the arm of the robot, and reads from the IR sensors to detect passengers
+*/
+
+#define CENTER_SENSOR_ARRAY				6;
+#define RIGHT_SENSOR_ARRAY				11;
+#define LEFT_SENSOR_ARRAY				10;
+#define PLATFORM_THRESHOLD				5;
+#define PASSENGER_DETECTED_THRESHOLD	3;
+#define TOPLEFT_PASS_DETEC				1;
+#define BOTTOMLEFT_PASS_DETEC			2;
+#define TOPRIGHT_PASS_DETEC				3;
+#define BOTTOMRIGHT_PASS_DETEC			4;
+#define CLAW_SWITCH						9;
+#define ROTATING_BASE_MOTOR				2;
+#define ARM_EXTENSION_MOTOR				3;
+#define BASE_ROTATION_QRD				15;
+#define ARM_START_ROT_SPEED				200;
+#define ARM_START_EXT_SPEED				200;
+#define TILT_SWITCH						7;
+#define ARM_SWITCH						15;
+#define BACK							-1;
+#define FWD								1;
+
+// CLAW Servo is servo 0: 0 angle is open, 180 angle is closed.
+const int FULL_EXTENSION_TIME = 3000;
+
+void setup()
+{  
+  #include <phys253setup.txt>
+  Serial.begin(9600) ;
+}
+
+void loop(){
+
+	bool havePassenger = digitalRead(CLAW_SWITCH); //if we currently are holding a passenger
+	int passengerState = Is_Passenger(); //if there is a passenger and what side it is on
+	bool do_PID = false;
+
+	if (passengerState != 0 && havePassenger == false){
+
+		//rotate arm in passengerState direction to pre-set position to start search
+		//extend arm to start
+		//Lower arm to horizontal to start
+		Arm_Start(passengerState);
+    
+		//begin rotation until arm centered at PID start
+		//when centered begin PID    // if max return home and keep going/repeat???
+		do_PID = Rotate_Base_To_PID(passengerState);
+
+		//Do PID until hit threshold in center or passenger touch sensor
+		//close claw (servo turn x amount)
+		//retract
+		if(do_PID){
+      
+		}
+
+     Arm_Go_Home(passengerState, havePassenger);
+
+	 //go to home position
+  }
+}
+
+/**
+checks if passenger is present
+@returns 0 no passenger , 1 = passenger on right , -1 = passenger on left
+*/
+int Is_Passenger(){
+
+	int topLeft = analogRead(TOPLEFT_PASS_DETEC);
+	int botLeft = analogRead(BOTTOMLEFT_PASS_DETEC);
+	int topRight = analogRead(TOPRIGHT_PASS_DETEC);
+	int botRight = analogRead(TOPLEFT_PASS_DETEC);
+
+	if((topLeft && botLeft) >= PASSENGER_DETECTED_THRESHOLD){
+		return -1;
+	}
+
+	if((topRight && botRight)>=PASSENGER_DETECTED_THRESHOLD){
+		return 1;
+	}
+
+	return 0;
+}
+
+/**
+moves arm to starting position to begin search for passenger
+@param state: the current passenger detection state, -1 for left and 1 for right
+*/
+void Arm_Start(int state){
+  
+  motor.speed(ROTATING_BASE_MOTOR, ARM_START_ROT_SPEED*state);
+//??
+  while(digitalRead(BASE_ROTATION_QRD) == false){
+    }
+  while(digitalRead(BASE_ROTATION_QRD) == true){
+    }
+//
+
+
+    // for testing. in actual code probably better to got straight into pid
+ 
+   Motor_Stop_NOW(ROTATING_BASE_MOTOR, ARM_START_ROT_SPEED*state*-1);
+
+   
+    //Tilts arm from up to down position
+    
+     //Turn tilt motor on should go down
+
+     //turn tilt motor on
+  while(digitalRead(TILT_SWITCH)==true){
+    }
+   while(digitalRead(TILT_SWITCH)==false){
+    }
+
+    //turn off tilt motor
+   return;
+   
+}
+
+
+/**
+rotates arm to platform to find a rough position to begin PID finding 
+or if none found then returns false
+*/
+bool Rotate_Base_To_PID(int state){
+
+
+   bool right_sen_array = digitalRead(RIGHT_SENSOR_ARRAY);
+   bool left_sen_array = digitalRead(LEFT_SENSOR_ARRAY);
+   bool base_QRD = digitalRead(BASE_ROTATION_QRD);
+   bool found = false;
+
+   motor.speed(ROTATING_BASE_MOTOR, ARM_START_ROT_SPEED*state);
+
+  //look for general center or max turn distance // on black
+   while(base_QRD ==false){
+    right_sen_array = digitalRead(RIGHT_SENSOR_ARRAY);
+    left_sen_array = digitalRead(LEFT_SENSOR_ARRAY);
+    base_QRD =digitalRead(BASE_ROTATION_QRD);
+
+		if ((right_sen_array && left_sen_array) ==true){
+		 Motor_Stop_NOW(ROTATING_BASE_MOTOR, ARM_START_ROT_SPEED*state*-1);
+		 return true;
+		}
+	}
+
+   //hit the middle line on rotation gear
+  while(base_QRD ==true){
+    right_sen_array = digitalRead(RIGHT_SENSOR_ARRAY);
+    left_sen_array = digitalRead(LEFT_SENSOR_ARRAY);
+    base_QRD =digitalRead(BASE_ROTATION_QRD);
+
+		if ((right_sen_array && left_sen_array) == true){
+			Motor_Stop_NOW(ROTATING_BASE_MOTOR, ARM_START_ROT_SPEED*state*-1);
+			return true;
+		}
+  }
+
+  Motor_Stop_NOW(ROTATING_BASE_MOTOR, ARM_START_ROT_SPEED*state*-1);
+  motor.speed(ROTATING_BASE_MOTOR, ARM_START_ROT_SPEED*state*-1)
+  
+  // hit max distance on roation gear //on black again
+  //head opposite way
+
+  //get off black at max dist
+  while(base_QRD ==false){
+    base_QRD =digitalRead(BASE_ROTATION_QRD);
+   }
+
+   while(base_QRD ==true){
+    right_sen_array = digitalRead(RIGHT_SENSOR_ARRAY);
+    left_sen_array = digitalRead(LEFT_SENSOR_ARRAY);
+    base_QRD =digitalRead(BASE_ROTATION_QRD);
+
+    if ((right_sen_array && left_sen_array) ==true){
+      Motor_Stop_NOW(ROTATING_BASE_MOTOR, ARM_START_ROT_SPEED*state);
+      return true;
+      
+    }
+   }
+
+   while(base_QRD == false){
+    right_sen_array = digitalRead(RIGHT_SENSOR_ARRAY);
+    left_sen_array = digitalRead(LEFT_SENSOR_ARRAY);
+    base_QRD =digitalRead(BASE_ROTATION_QRD);
+
+    if ((right_sen_array && left_sen_array) ==true){
+      Motor_Stop_NOW(ROTATING_BASE_MOTOR, ARM_START_ROT_SPEED*state);
+      return true;
+      
+    }
+   }
+   //scanned back and forth and didnt find somewhere to start PID so return false
+   Motor_Stop_NOW(ROTATING_BASE_MOTOR, ARM_START_ROT_SPEED*state);
+  
+  return false;
+}
+
+
+//extends claw to find a passenger or to max distance it can go or 
+//to set threshold from passenger base. returns true is claw switch pressed else 
+// returns false.
+
+// change time stuff to switches to detect max and min extension
+bool Arm_PID(int state){
+
+   int cen_sen_array = analogRead(CENTER_SENSOR_ARRAY)
+   bool right_sen_array = digitalRead(RIGHT_SENSOR_ARRAY);
+   bool left_sen_array = digitalRead(LEFT_SENSOR_ARRAY);
+   long start_ext_time = millis();
+   long end_ext_time;
+   bool claw_close = false;
+
+   do{
+
+    /*
+	put ARM PID here
+    */
+
+    end_ext_time = millis();
+  } while ( !digitalRead(CLAW_SWITCH) && (end_ext_time - start_ext_time)<=FULL_EXTENSION_TIME && analogRead(CENTER_SENSOR_ARRAY)<= PLATFORM_THRESHOLD);
+
+  Motor_Stop_NOW(ROTATING_BASE_MOTOR, ARM_START_ROT_SPEED*state*-1);
+
+  if(digitalRead(CLAW_SWITCH)){
+    //close claw
+    claw_close = true;
+  }
+
+  Arm_Move(BACK);
+  
+
+  return claw_close;
+}
+
+/**
+
+*/
+void Arm_Move(int fwd_or_back){
+
+   motor.speed(ARM_EXTENSION_MOTOR, ARM_START_EXT_SPEED*fwd_or_back);
+   while(digitalRead(ARM_SWITCH) == false){
+    
+   }
+   Motor_Stop_NOW(ARM_EXTENSION_MOTOR, ARM_START_EXT_SPEED*fwd_or_back*-1);
+
+  return;
+}
+
+/**
+returns the arm to its home position. Assume already on clear start search position
+retract arm must put me here
+*/
+void Arm_Go_Home(int state, bool have_pass){
+
+//Tilts arm from down to up position
+    
+     //Turn tilt motor on should go up
+
+     //turn tilt motor on
+  while(digitalRead(TILT_SWITCH)==true){
+    }
+   while(digitalRead(TILT_SWITCH)==false){
+    }
+
+    //turn off tilt motor
+
+
+motor.speed(ROTATING_BASE_MOTOR, ARM_START_ROT_SPEED*state*-1);
+
+  while(digitalRead(BASE_ROTATION_QRD) == true){
+    }
+ 
+   motor.stop(ROTATING_BASE_MOTOR);
+
+   if(have_pass == false){
+    RCServo0.write(0);
+   }
+   
+   
+return;
+}
+
+/**
+
+*/
+void Motor_Stop_NOW(int motor, int vel){
+  motor.speed(motor, vel)
+  delay(100)
+  motor.stop(motor);
+  return;
+}
+
+
+

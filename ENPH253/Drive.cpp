@@ -141,9 +141,9 @@ void stopNow()
 	motor.stop(RIGHT_WHEEL);
 }
 
-extern "C" void setKP(Drive *drive) { drive->kp = knob(KNOB) / 3; }
+extern "C" void setKP(Drive *drive) { drive->kp = knob(KNOB) / 4; }
 
-extern "C" void setKD(Drive *drive) { drive->kd = knob(KNOB) / 3; }
+extern "C" void setKD(Drive *drive) { drive->kd = knob(KNOB) / 4; }
 
 extern "C" unsigned char getKP(Drive *drive) { return drive->kp; }
 
