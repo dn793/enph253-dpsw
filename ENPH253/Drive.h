@@ -10,11 +10,15 @@
 #define INITIAL_VELOCITY 125
 
 #define MAX_SPEED 255
+#define TURN_SPEED 50
 #define PASSENGER_THRESHOLD	2.1
+#define PASSENGER_DETECT_DIFFERENCE	-0.25
 
 #define DELAY_TURN 200
 #define DELAY_ROTATE 300
 #define DELAY_STOP 25
+#define DELAY_IR_PASS 1750
+#define DELAY_IR_DETECT 10
 
 #define DETECT_COLLISION_FRONT 1
 #define DETECT_COLLISION_BACK -1
@@ -35,28 +39,34 @@ class Drive
 	public:
 		Drive();
 		unsigned char lineFollow();
-		void turnLeft();
-		void turnRight();
-		void hardLeft();
-		void hardRight();
+		bool turnLeft();
+		bool turnRight();
 		void turnAroundLeft();
 		void turnAroundRight();
+		void turnAround();
 		void driveForward(unsigned char speed);
 		void reverse(short speed);
 		void stop();
 		void stopNow();
+		void backToSurface();
 		void setKP(unsigned char value);
 		void setKD(unsigned char value);
 		unsigned char getKP();
 		unsigned char getKD();
-		char nodeDetection();
+		char nodeDetect();
 		char collisionDetect();
-		void backToSurface();
 		char passengerDetect();
+		char passengerCompare();
 		unsigned char moveToNextNode();
+		void moveToNextState();
 
 		std::deque<unsigned char> path;
-
+		unsigned char lastNode;
+		unsigned char currentNode;
+		unsigned char nextNode;
+		unsigned char lastDirection;
+		unsigned char currentDirection;
+		unsigned char nextDirection;
 	private:
 		// QRD sensors
 		unsigned char rightLine;
@@ -72,18 +82,12 @@ class Drive
 		char prevError = 0;
 		char lastError = 0;
 
-		// Navigation variables
-		unsigned char lastNode;
-		unsigned char currentNode;
-		unsigned char nextNode;
-		unsigned char lastDirection;
-		unsigned char currentDirection;
-		unsigned char nextDirection;
-
 		// Other variables
 		short velocity;
 		unsigned short q;
 		unsigned short m;
+		float leftIRVal;
+		float rightIRVal;
 };
 
 #endif
